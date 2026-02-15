@@ -3,6 +3,9 @@ import { useState } from 'react'
 import './App.css' // Import styles
 import AutocompleteInput from './AutocompleteInput' // Import Autocomplete Component
 
+// API base URL: empty string for local dev (uses Vite proxy), full URL for production
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 function App() {
   // --- State Definition ---
   // Principle: Data that changes on the UI needs to be defined as State
@@ -77,7 +80,7 @@ function App() {
 
     try {
       // Principle: Use fetch to make requests; path doesn't need http://localhost:5000 because proxy is configured
-      const response = await fetch('/api/analyze', {
+      const response = await fetch(`${API_BASE}/api/analyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ handle: handle, lang: lang })

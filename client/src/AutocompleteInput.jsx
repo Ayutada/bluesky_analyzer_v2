@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 
+// API base URL: empty string for local dev (uses Vite proxy), full URL for production
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 const AutocompleteInput = ({ value, onChange, placeholder, disabled }) => {
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [suggestions, setSuggestions] = useState([]);
@@ -42,7 +45,7 @@ const AutocompleteInput = ({ value, onChange, placeholder, disabled }) => {
 
         setSearchLoading(true);
         try {
-            const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+            const response = await fetch(`${API_BASE}/api/search?q=${encodeURIComponent(query)}`);
             if (response.ok) {
                 const data = await response.json();
                 setSuggestions(data);
