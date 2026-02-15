@@ -1,9 +1,0 @@
-requests
-beautifulsoup4
-markdownify
-python-dotenv
-langchain-core
-langchain-google-genai
-pydantic
-flask
-flask-cors

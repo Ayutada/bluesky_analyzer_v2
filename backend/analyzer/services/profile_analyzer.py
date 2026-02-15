@@ -6,7 +6,7 @@ from langchain_core.output_parsers import JsonOutputParser
 from pydantic import BaseModel, Field
 
 # 1. Load API Key from .env
-load_dotenv(os.path.join(os.path.dirname(__file__), '..', 'env', '.env'))
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '..', '..', '.env'))
 
 # Check if Key is loaded successfully
 if not os.getenv("GOOGLE_API_KEY"):
