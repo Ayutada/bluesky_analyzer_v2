@@ -1,12 +1,14 @@
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from pydantic import BaseModel, Field
 
-# 1. Load API Key from .env
-load_dotenv(os.path.join(os.path.dirname(__file__), '..', '..', '..', '.env'))
+# 1. Load API Key from .env (local dev) or environment (Cloud Run)
+env_path = Path(__file__).resolve().parents[3] / ".env"
+load_dotenv(env_path)
 
 # Check if Key is loaded successfully
 if not os.getenv("GOOGLE_API_KEY"):
