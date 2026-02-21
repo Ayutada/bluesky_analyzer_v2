@@ -6,7 +6,8 @@ from dotenv import load_dotenv
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
-from pydantic import BaseModel, Field
+
+from . import types
 
 logger = logging.getLogger(__name__)
 
@@ -22,12 +23,6 @@ def _get_llm() -> ChatGoogleGenerativeAI:
     return ChatGoogleGenerativeAI(model="gemini-2.5-flash-lite", temperature=0)
 
 
-class PersonalityAnalysis(BaseModel):
-    mbti: str = Field(description="Inferred MBTI type, e.g. INTJ")
-    animal: str = Field(description="Inferred Spirit Animal figure, e.g. Black Panther")
-    description: str = Field(description="Brief personality portrait description, about 200-300 words")
-
-
 def analyze_personality(text_content: str, lang: str = "cn") -> dict:
     """
     Analyze MBTI and spirit animal based on user input text content.
@@ -36,7 +31,7 @@ def analyze_personality(text_content: str, lang: str = "cn") -> dict:
         text_content (str): User profile and post content
         lang (str): Target language code ('cn', 'jp', 'en')
     """
-    parser = JsonOutputParser(pydantic_object=PersonalityAnalysis)
+    parser = JsonOutputParser(pydantic_object=types.PersonalityAnalysis)
 
     # Determine language instruction based on lang parameter
     lang_instruction = (
@@ -107,19 +102,11 @@ def analyze_personality(text_content: str, lang: str = "cn") -> dict:
 
     chain = prompt | _get_llm() | parser
 
-    try:
-        logger.info("Performing AI personality analysis...")
-        result = chain.invoke(
-            {
-                "text": text_content,
-                "format_instructions": parser.get_format_instructions(),
-            }
-        )
-        return result
-    except Exception as e:
-        logger.error(f"AI analysis failed: {e}")
-        return {
-            "mbti": "Unknown",
-            "animal": "Unknown",
-            "description": "An error occurred during verification, please try again later.",
+    logger.info("Performing AI personality analysis...")
+    result = chain.invoke(
+        {
+            "text": text_content,
+            "format_instructions": parser.get_format_instructions(),
         }
+    )
+    return result

@@ -14,6 +14,12 @@ class PostFeed(BaseModel):
     text: str = Field(description="Text")
 
 
+class PersonalityAnalysis(BaseModel):
+    mbti: str = Field(description="Inferred MBTI type, e.g. INTJ")
+    animal: str = Field(description="Inferred Spirit Animal figure, e.g. Black Panther")
+    description: str = Field(description="Brief personality portrait description, about 200-300 words")
+
+
 class ProfileResult(BaseModel):
     profile: ProfileInfo = Field(description="Profile information")
     posts: list[PostFeed] = Field(description="List of post feeds")
