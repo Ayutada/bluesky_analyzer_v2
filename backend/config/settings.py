@@ -26,7 +26,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "django-insecure-sbcx#hjsh=lctpd8o7r3s!osz0f*zz_b_-!(e_tfvb7gsw_c9l")
+SECRET_KEY = os.getenv(
+    "DJANGO_SECRET_KEY",
+    "django-insecure-sbcx#hjsh=lctpd8o7r3s!osz0f*zz_b_-!(e_tfvb7gsw_c9l",
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "True") == "True"
@@ -127,7 +130,4 @@ STATIC_URL = "static/"
 
 # CORS settings: whitelist frontend origins
 # In production, set CORS_ALLOWED_ORIGINS env var to your Vercel domain
-CORS_ALLOWED_ORIGINS = os.getenv(
-    "CORS_ALLOWED_ORIGINS",
-    "http://localhost:5173,http://127.0.0.1:5173"
-).split(",")
+CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",")
