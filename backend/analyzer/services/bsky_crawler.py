@@ -1,60 +1,35 @@
 import requests
 
-BSKY_API_BASE = "https://public.api.bsky.app/xrpc"
+from . import bsky_api_client, types
 
-def get_profile_data(handle):
+
+def get_profile_data(handle: str) -> types.ProfileResult:
     """
     Fetches profile and recent posts for a given BlueSky handle using the public API.
     """
+    # How to setup logging?
+    # Why logging this data?
     print(f"Fetching data for: {handle} ...")
-    
-    # 1. Get Profile
-    profile_url = f"{BSKY_API_BASE}/app.bsky.actor.getProfile"
-    try:
-        profile_res = requests.get(profile_url, params={"actor": handle})
-        profile_res.raise_for_status()
-        profile_json = profile_res.json()
-    except Exception as e:
-        print(f"Error fetching profile for {handle}: {e}")
-        return None
+
+    bsky_client = bsky_api_client.get_bsky_api_client()
 
     # Implement safe extraction
-    profile_info = {
-        "handle": profile_json.get("handle"),
-        "displayName": profile_json.get("displayName"),
-        "description": profile_json.get("description", ""),
-        "avatar": profile_json.get("avatar"),
-    }
+    profile_info = bsky_client.get_profile(handle=handle)
 
-    # 2. Get Recent Posts (Author Feed)
-    feed_url = f"{BSKY_API_BASE}/app.bsky.feed.getAuthorFeed"
-    posts_text = []
-    
     try:
-        feed_res = requests.get(feed_url, params={"actor": handle, "limit": 50})
-        feed_res.raise_for_status()
-        feed_json = feed_res.json()
-        
-        feed = feed_json.get("feed", [])
-        for item in feed:
-            post = item.get("post", {})
-            record = post.get("record", {})
-            text = record.get("text", "")
-            if text:
-                posts_text.append(text)
-                
-    except Exception as e:
-        print(f"Error fetching feed for {handle}: {e}")
+        posts = bsky_client.get_posts(handle=handle)
+    except bsky_api_client.UnableToGetFeeds:
         # Not critical, can continue with just profile description
+        posts = []
 
-    result = {
-        "profile": profile_info,
-        "posts": posts_text,
-        "full_text_for_analysis": f"User Description:\n{profile_info['description']}\n\nRecent Posts:\n" + "\n".join(posts_text)
-    }
-    
+    result = types.ProfileResult(
+        profile=profile_info,
+        posts=posts,
+    )
+
     print(f"Successfully fetched data for {handle}")
     return result
+
 
 def search_actors(term, limit=5):
     """
@@ -62,8 +37,9 @@ def search_actors(term, limit=5):
     """
     if not term or len(term.strip()) < 1:
         return []
-        
-    url = f"{BSKY_API_BASE}/app.bsky.actor.searchActorsTypeahead"
+
+    bsky_client = bsky_api_client.get_bsky_api_client()
+    url = f"{bsky_client.api_base}/app.bsky.actor.searchActorsTypeahead"
     try:
         res = requests.get(url, params={"q": term, "limit": limit})
         res.raise_for_status()
@@ -73,6 +49,8 @@ def search_actors(term, limit=5):
         print(f"Error searching actors for {term}: {e}")
         return []
 
+
+# Functional (end-to-end) test cases?
 if __name__ == "__main__":
     # Test
     data = get_profile_data("scievents.bsky.social")
