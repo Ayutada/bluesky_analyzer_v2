@@ -1,4 +1,13 @@
+from typing import Optional
+
 from pydantic import BaseModel, Field
+
+
+class ActorBasic(BaseModel):
+    did: str = Field(default="", description="Actor DID")
+    handle: str = Field(description="Actor handle")
+    display_name: Optional[str] = Field(default=None, description="Actor display name")
+    avatar: Optional[str] = Field(default=None, description="Actor avatar URL")
 
 
 class ProfileInfo(BaseModel):

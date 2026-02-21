@@ -13,6 +13,10 @@ class UnableToGetFeeds(Exception):
     pass
 
 
+class UnableToSearchActors(Exception):
+    pass
+
+
 class BskyClient:
     def __init__(self) -> None:
         self.api_base = "https://public.api.bsky.app/xrpc"
@@ -58,6 +62,26 @@ class BskyClient:
             raise UnableToGetFeeds
 
         return posts
+
+    def search_actors(self, term: str, limit: int = 5) -> list[types.ActorBasic]:
+        url = f"{self.api_base}/app.bsky.actor.searchActorsTypeahead"
+        try:
+            res = requests.get(url, params={"q": term, "limit": limit})
+            res.raise_for_status()
+            data = res.json()
+            actors = data.get("actors", [])
+            return [
+                types.ActorBasic(
+                    did=actor.get("did", ""),
+                    handle=actor.get("handle", ""),
+                    display_name=actor.get("displayName"),
+                    avatar=actor.get("avatar"),
+                )
+                for actor in actors
+            ]
+        except requests.RequestException as e:
+            logging.error(f"Error searching actors for {term}: {e}")
+            raise UnableToSearchActors(f"Failed to search actors for {term}") from e
 
 
 def get_bsky_api_client() -> BskyClient:
