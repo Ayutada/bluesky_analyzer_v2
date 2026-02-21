@@ -6,7 +6,7 @@ AI-powered personality analyzer for [Bluesky](https://bsky.app/) users. Crawls a
 
 ## Architecture
 
-```
+```text
 User → Vercel (React Frontend) → Google Cloud Run (Django Backend) → Gemini API
                                                                    → Bluesky Public API
 ```
@@ -17,24 +17,27 @@ User → Vercel (React Frontend) → Google Cloud Run (Django Backend) → Gemin
 | Backend    | Python, Django, django-cors-headers          |
 | AI / LLM   | Google Gemini 2.5 Flash-Lite (via LangChain) |
 | Deployment | Vercel (Frontend) + Cloud Run (Backend)      |
+| Dev Tools  | Black, isort, Flake8, pre-commit             |
 
 ## Project Structure
 
-```
+```text
 bluesky_analyzer_v2/
 ├── backend/                        # Django backend
 │   ├── manage.py
 │   ├── Dockerfile                  # Cloud Run container config
-│   ├── config/
+│   ├── config/                     # Django core settings
 │   │   ├── settings.py             # Django settings (env-var driven)
 │   │   ├── urls.py
 │   │   └── wsgi.py
-│   └── analyzer/
+│   └── analyzer/                   # Analyzer Django App
 │       ├── views.py                # API endpoints
 │       ├── urls.py                 # Route definitions
-│       └── services/
-│           ├── bsky_crawler.py     # Bluesky profile & feed crawler
-│           └── profile_analyzer.py # Gemini AI personality analysis
+│       └── services/               # Core business logic
+│           ├── bsky_api_client.py  # Bluesky API interaction wrapper
+│           ├── bsky_crawler.py     # Data aggregation & processing
+│           ├── profile_analyzer.py # Gemini AI personality analysis
+│           └── types.py            # Pydantic models & data types
 ├── client/                         # React frontend
 │   ├── src/
 │   │   ├── App.jsx
@@ -44,7 +47,11 @@ bluesky_analyzer_v2/
 │   ├── vercel.json                 # Vercel build config
 │   └── vite.config.js
 ├── .env                            # Environment variables (not committed)
-└── requirements.txt
+├── .flake8                         # Flake8 configuration
+├── .pre-commit-config.yaml         # Pre-commit hooks configuration
+├── pyproject.toml                  # Black and isort configurations
+├── requirements.txt                # Production dependencies
+└── requirements-dev.txt            # Development dependencies (linters)
 ```
 
 ## Local Development
@@ -75,14 +82,22 @@ Create a `.env` file in the project root:
 GOOGLE_API_KEY=your_google_api_key_here
 ```
 
-### 3. Install Dependencies & Run
+### 3. Install Dependencies & Set up Pre-commit
 
 ```bash
 # Backend
 pip install -r requirements.txt
+pip install -r requirements-dev.txt
+
+# Install pre-commit hooks to ensure code quality on commit
+pre-commit install
+
+# Start backend server
 cd backend
 python manage.py runserver 8000
+```
 
+```bash
 # Frontend (in a separate terminal)
 cd client
 npm install
@@ -90,6 +105,19 @@ npm run dev
 ```
 
 Open http://localhost:5173 in your browser.
+
+### 4. Code Quality Tools (Linters & Formatters)
+
+The project uses `black` for formatting, `isort` for import sorting, and `flake8` for linting.
+You can run them manually in the project root:
+
+```bash
+black backend/
+isort backend/
+flake8 backend/
+```
+
+Or simply let `pre-commit` handle it automatically when you run `git commit`.
 
 ## Changes from V1
 
@@ -108,6 +136,10 @@ Open http://localhost:5173 in your browser.
 - **AI approach**: RAG-augmented analysis → Direct Gemini prompting (simpler, fewer dependencies, equivalent quality)
 - **Environment variables**: `.env` moved from `env/` subdirectory to project root
 - **Configuration**: Sensitive settings (SECRET_KEY, CORS, ALLOWED_HOSTS) read from environment variables for production safety
+- **Code Quality Tools**: Introduced `black`, `isort`, `flake8`, and `pre-commit` to enforce consistent style and improve maintainability.
+- **Type Safety**: Added comprehensive static and runtime type hints via `Pydantic` to improve code robustness and developer experience.
+- **Code Refactoring**: Modularized the core scraping logic by extracting components into `types.py` (for data structures) and `bsky_api_client.py` (for API interactions), enhancing code readability and separation of concerns.
+- **Logging Improvement**: Replaced basic `print` statements with the standard Python `logging` module for better error tracking and application monitoring.
 
 ## API Reference
 
@@ -121,12 +153,12 @@ Analyze a user's personality.
 
 ```json
 // Request
-{ "handle": "username.bsky.social", "lang": "jp" }
+{ "handle": "username.bsky.social", "lang": "en" }
 
 // Response
 {
   "profile": { "handle": "...", "displayName": "...", "avatar": "..." },
-  "analysis": { "mbti": "INTJ", "animal": "黒豹", "description": "..." }
+  "analysis": { "mbti": "INTJ", "animal": "Black Panther", "description": "..." }
 }
 ```
 
