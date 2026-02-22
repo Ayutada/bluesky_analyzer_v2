@@ -140,6 +140,7 @@ Or simply let `pre-commit` handle it automatically when you run `git commit`.
 - **Type Safety**: Added comprehensive static and runtime type hints via `Pydantic` to improve code robustness and developer experience.
 - **Code Refactoring**: Modularized the core scraping logic by extracting components into `types.py` (for data structures) and `bsky_api_client.py` (for API interactions), enhancing code readability and separation of concerns.
 - **Logging Improvement**: Replaced basic `print` statements with the standard Python `logging` module for better error tracking and application monitoring.
+- **Cloud Logging**: Integrated Google Cloud Logging and Error Reporting for centralized log collection and real-time error monitoring in production.
 
 ## API Reference
 
