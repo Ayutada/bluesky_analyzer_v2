@@ -16,7 +16,7 @@ def search_actors(request: HttpRequest) -> JsonResponse:
         return JsonResponse([], safe=False)
     logger.info(f"Searching actors for query: {q}")
     results = bsky_crawler.search_actors(q)
-    return JsonResponse(results, safe=False)
+    return JsonResponse([r.model_dump() for r in results], safe=False)
 
 
 @csrf_exempt

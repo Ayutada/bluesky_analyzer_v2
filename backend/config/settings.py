@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 
+import google.cloud.logging
 from dotenv import load_dotenv
 
 # Load .env for local dev; on Cloud Run, env vars are injected by the platform
@@ -131,3 +132,10 @@ STATIC_URL = "static/"
 # CORS settings: whitelist frontend origins
 # In production, set CORS_ALLOWED_ORIGINS env var to your Vercel domain
 CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",")
+
+
+# --- Google Cloud Logging Integration ---
+# Only activate in production (Cloud Run), not in local dev
+if not DEBUG:
+    client = google.cloud.logging.Client()
+    client.setup_logging()
