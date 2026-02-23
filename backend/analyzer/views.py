@@ -34,11 +34,13 @@ def analyze_profile(request: HttpRequest) -> JsonResponse:
     handle = data.get("handle")
     lang = data.get("lang", "cn")
 
+    # Normalize handle before validation to catch whitespace-only inputs
+    if handle:
+        handle = handle.strip().lower()
+
     if not handle:
         logger.warning("Analyze request received with no handle")
         return JsonResponse({"error": "No handle provided"}, status=400)
-
-    handle = handle.strip().lower()
     logger.info(f"Analyzing profile for: {handle}")
 
     try:
