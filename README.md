@@ -33,6 +33,8 @@ bluesky_analyzer_v2/
 │   └── analyzer/                   # Analyzer Django App
 │       ├── views.py                # API endpoints
 │       ├── urls.py                 # Route definitions
+│       ├── tests/                  # Functional & unit tests
+│       │   └── test_views.py       # Views layer tests (17 cases)
 │       └── services/               # Core business logic
 │           ├── bsky_api_client.py  # Bluesky API interaction wrapper
 │           ├── bsky_crawler.py     # Data aggregation & processing
@@ -119,6 +121,19 @@ flake8 backend/
 
 Or simply let `pre-commit` handle it automatically when you run `git commit`.
 
+### 5. Testing
+
+Run the test suite from the `backend/` directory:
+
+```bash
+cd backend
+python manage.py test -v 2                                          # Run all tests
+python manage.py test analyzer.tests.test_views -v 2                # Run views tests only
+python manage.py test analyzer.tests.test_views.AnalyzeProfileViewTests.test_successful_analysis -v 2  # Run a single test
+```
+
+The views layer tests use Django's test `Client` and `unittest.mock` to simulate HTTP requests without calling external APIs. More test modules (services, models) will be added incrementally.
+
 ## Changes from V1
 
 ### Removed
@@ -141,6 +156,7 @@ Or simply let `pre-commit` handle it automatically when you run `git commit`.
 - **Code Refactoring**: Modularized the core scraping logic by extracting components into `types.py` (for data structures) and `bsky_api_client.py` (for API interactions), enhancing code readability and separation of concerns.
 - **Logging Improvement**: Replaced basic `print` statements with the standard Python `logging` module for better error tracking and application monitoring.
 - **Cloud Logging**: Integrated Google Cloud Logging and Error Reporting for centralized log collection and real-time error monitoring in production.
+- **Testing**: Added functional tests for the views layer (17 test cases) covering input validation, error handling, and edge cases. Tests are fully mocked and require no external API access.
 
 ## API Reference
 
